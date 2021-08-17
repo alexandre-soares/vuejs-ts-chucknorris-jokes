@@ -1,7 +1,7 @@
 <template>
   <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/search">Search</router-link>
+    <router-link to="/">Home</router-link>
+    <router-link to="/search" v-if="false">Search</router-link>
   </div>
 </template>
 
@@ -20,9 +20,10 @@ export default defineComponent({
   a {
     font-weight: bold;
     color: #2c3e50;
+    font-size: 1.4rem;
 
     &.router-link-exact-active {
-      color: #42b983;
+      color: black;
     }
   }
 }
