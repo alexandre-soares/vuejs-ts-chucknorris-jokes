@@ -2,13 +2,12 @@
   <Loading v-if="isLoading" />
   <div class="jokes">
     <h2>{{ this.joke.text }}</h2>
-
-    <!-- <p>Rate this joke</p>
+    <p>Rate this joke</p>
     <div class="buttons">
       <button @click="rateJoke('bad')">😩</button>
       <button @click="rateJoke('medium')">🤨</button>
       <button @click="rateJoke('good')">😂</button>
-    </div> -->
+    </div>
     <button class="btn" @click="getRandomJoke">Get Another Joke</button>
     <div class="notifications">
       <transition-group name="slide-fade" mode="out-in">
@@ -26,77 +25,52 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
 
 import Loading from "../components/Loading.vue";
 
 import axios from "axios";
-
-import Notification from "../types/Notification";
 
 export default defineComponent({
   name: "Jokes",
   components: {
     Loading,
   },
-  data() {
-    return {
-      joke: {
-        id: String,
-        text: String,
-      },
-      isLoading: false as boolean,
-      notifications: [] as Array<Notification[]>,
-    };
-  },
-  mounted() {
-    // Load the component with a joke when the page appears
-    this.getRandomJoke();
-    // Remove the first notification of the array (the oldest one) every 10 seconds
-    setInterval(() => {
-      this.autoRemoveNotification();
-    }, 10000);
-  },
-  methods: {
-    async getRandomJoke(): Promise<void> {
+  setup() {
+    let isLoading = ref(false);
+
+    let joke = { id: Number, text: String };
+
+    async function getRandomJoke(): Promise<void> {
       // Start the loading screen
-      this.isLoading = true;
+      isLoading.value = true;
+
       // Api Call
       try {
         const response = await axios.get(
           "https://api.chucknorris.io/jokes/random"
         );
+        console.log(response);
+
         // Show the joke
-        this.joke.id = response.data.id;
-        this.joke.text = response.data.value;
+        joke.id = response.data.id;
+        joke.text = response.data.value;
         // Stop the loading screen
-        this.isLoading = false;
+        isLoading.value = false;
       } catch (error) {
         console.error(error);
       }
-    },
-    /*
-    rateJoke(value: string) {
-      // Push the notification object on the notifications array
-      this.notifications.push({
-        id: this.joke.id,
-        text: `You didn't like the joke: ${this.joke.text}!`,
-        rating: value,
-      });
+    }
 
-      // Api Call for another joke
-      this.getRandomJoke();
-    },
-    */
-    autoRemoveNotification(): void {
-      // Remove the oldest notification only if there is at least one
-      if (this.notifications.length > 0) {
-        this.notifications.shift();
-      }
-    },
-    removeNotification(index: number) {
-      this.notifications.splice(index, 1);
-    },
+    onMounted(() => {
+      getRandomJoke()
+    });
+
+    return {
+      isLoading: isLoading,
+      joke: joke,
+      getRandomJoke: getRandomJoke,
+    };
   },
 });
 </script>
