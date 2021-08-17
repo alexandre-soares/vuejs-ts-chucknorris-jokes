@@ -1,7 +1,7 @@
 <template>
   <Loading v-if="isLoading" />
   <div class="jokes">
-    <h2>{{ this.joke.text }}</h2>
+    <h2>{{ joke.text }}</h2>
     <p>Rate this joke</p>
     <div class="buttons">
       <button @click="rateJoke('bad')">😩</button>
@@ -26,10 +26,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
+import axios from "axios";
 
 import Loading from "../components/Loading.vue";
-
-import axios from "axios";
 
 export default defineComponent({
   name: "Jokes",
@@ -37,10 +36,18 @@ export default defineComponent({
     Loading,
   },
   setup() {
+    // Declare variables
     let isLoading = ref(false);
+    let joke = { id: "1", text: "String" };
+    const notifications = ref([
+      {
+        id: "1",
+        text: "This is a notification",
+        rating: "good",
+      },
+    ]);
 
-    let joke = { id: Number, text: String };
-
+    // Get a joke
     async function getRandomJoke(): Promise<void> {
       // Start the loading screen
       isLoading.value = true;
@@ -50,11 +57,11 @@ export default defineComponent({
         const response = await axios.get(
           "https://api.chucknorris.io/jokes/random"
         );
-        console.log(response);
 
-        // Show the joke
+        // Assign and display the joke
         joke.id = response.data.id;
         joke.text = response.data.value;
+
         // Stop the loading screen
         isLoading.value = false;
       } catch (error) {
@@ -62,14 +69,62 @@ export default defineComponent({
       }
     }
 
+    // Rate a joke
+    function rateJoke(value: string) {
+      // Push the notification object on the notifications array
+
+      const newNotification = {
+        id: joke.id,
+        text: "",
+        rating: value,
+      };
+
+      if (value === "bad") {
+        newNotification.text = `You didn't like the joke: ${joke.text}!`;
+      }
+      if (value === "medium") {
+        newNotification.text = `The joke "${joke.text}" didn't impress you!`;
+      }
+      if (value === "good") {
+        newNotification.text = `You liked the joke: ${joke.text}`;
+      }
+
+      notifications.value.push(newNotification);
+
+      // Api Call for another joke
+      getRandomJoke();
+    }
+
+    // Auto Remove Notifications
+    function autoRemoveNotification() {
+      // Remove the oldest notification only if there is at least one
+      if (notifications.value.length > 0) {
+        notifications.value.shift();
+      }
+    }
+
+    // Remove the notifications
+
+    function removeNotification(index: number) {
+      notifications.value.splice(index, 1);
+    }
+
     onMounted(() => {
-      getRandomJoke()
+      getRandomJoke();
+
+      setInterval(() => {
+        autoRemoveNotification();
+      }, 10000);
     });
 
     return {
       isLoading: isLoading,
       joke: joke,
+      notifications: notifications,
       getRandomJoke: getRandomJoke,
+      rateJoke: rateJoke,
+      autoRemoveNotification: autoRemoveNotification,
+      removeNotification: removeNotification,
     };
   },
 });

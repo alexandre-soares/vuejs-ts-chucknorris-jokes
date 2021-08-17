@@ -27,26 +27,36 @@
 </template>
 
 <script lang="ts">
-export default {
-  data() {
+import { defineComponent, ref, onMounted } from "vue";
+
+export default defineComponent({
+  setup() {
+    let modalOpen = ref(false);
+
+    // FUNCTIONS
+
+    function openModal() {
+      modalOpen.value = true;
+    }
+
+    function closeModal() {
+      modalOpen.value = !modalOpen.value;
+    }
+
+    // MOUNTED
+    onMounted(() => {
+      setTimeout(() => {
+        openModal();
+      }, 25000);
+    });
+
     return {
-      modalOpen: false,
+      modalOpen: modalOpen,
+      openModal: openModal,
+      closeModal: closeModal,
     };
   },
-  mounted() {
-    setTimeout(() => {
-      this.openModal();
-    }, 25000);
-  },
-  methods: {
-    openModal(): void {
-      this.modalOpen = true;
-    },
-    closeModal(): void {
-      this.modalOpen = !this.modalOpen;
-    },
-  },
-};
+});
 </script>
 
 <style lang="scss" scoped>

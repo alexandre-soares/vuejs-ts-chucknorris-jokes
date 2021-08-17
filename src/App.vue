@@ -1,24 +1,27 @@
 <template>
   <Navigation />
   <router-view />
+  <Modal />
+  <Counter />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import Counter from "./components/Counter.vue";
+import Modal from "./components/Modal.vue";
 import Navigation from "./components/Navigation.vue";
-
 
 export default defineComponent({
   name: "App",
   components: {
     Navigation,
+    Modal,
+    Counter,
   },
 });
 </script>
 
 <style lang="scss">
-
-
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
